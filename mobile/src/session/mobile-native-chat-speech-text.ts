@@ -13,7 +13,7 @@ function speakInline(text: string): string {
     .replace(PATH, '$1')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*(.+?)\*\*/g, '$1')
-    .replace(/(?<!\w)\*(.+?)\*(?!\w)/g, '$1')
+    .replace(/(^|\W)\*(.+?)\*(?!\w)/g, '$1$2')
     .replace(/__(.+?)__/g, '$1')
     .replace(/(\d)\s*[–-]\s*(\d)/g, '$1 to $2')
     .replace(/\s\+\s/g, ' plus ')
@@ -95,7 +95,8 @@ export function nativeChatSpeechText(markdown: string): string {
 export function nativeChatSpeechChunks(text: string, maxLength = 3900): string[] {
   const chunks: string[] = []
   let current = ''
-  for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+  // No lookbehind: the page also runs on iOS 15, which cannot parse it.
+  for (const sentence of text.replace(/([.!?])\s+/g, '$1\n').split('\n')) {
     if (current && current.length + sentence.length + 1 > maxLength) {
       chunks.push(current)
       current = ''
