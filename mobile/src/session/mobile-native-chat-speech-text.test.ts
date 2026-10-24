@@ -31,6 +31,18 @@ describe('nativeChatSpeechText', () => {
       '| # | Who | Done when |\n|---|---|---|\n| 1 | **me** | it builds. |\n| 2 | you | |'
     expect(nativeChatSpeechText(markdown)).toBe('1, Who: me, Done when: it builds. 2, Who: you.')
   })
+
+  it('keeps math and comparisons, dropping only the markdown around them', () => {
+    expect(nativeChatSpeechText('Use a * b when a > b, not *this*.\n> quoted line')).toBe(
+      'Use a * b when a > b, not this. quoted line.'
+    )
+    expect(nativeChatSpeechText('2 * 3 * 4 is 24')).toBe('2 * 3 * 4 is 24.')
+  })
+
+  it('keeps an escaped pipe inside its table cell', () => {
+    const markdown = '| Cmd | Use |\n|---|---|\n| ls \\| wc | count files |'
+    expect(nativeChatSpeechText(markdown)).toBe('Cmd: ls wc, Use: count files.')
+  })
 })
 
 describe('nativeChatSpeechChunks', () => {
