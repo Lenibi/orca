@@ -41,7 +41,15 @@ describe('nativeChatSpeechText', () => {
 
   it('keeps an escaped pipe inside its table cell', () => {
     const markdown = '| Cmd | Use |\n|---|---|\n| ls \\| wc | count files |'
-    expect(nativeChatSpeechText(markdown)).toBe('Cmd: ls wc, Use: count files.')
+    expect(nativeChatSpeechText(markdown)).toBe('Cmd: ls pipe wc, Use: count files.')
+  })
+
+  it('speaks sharps and pipes instead of dropping them', () => {
+    expect(nativeChatSpeechText('Use C# and F#, then run `ls | wc`.')).toBe(
+      'Use C sharp and F sharp, then run ls pipe wc.'
+    )
+    expect(nativeChatSpeechText('## Title ##')).toBe('Title.')
+    expect(nativeChatSpeechText('#tag')).toBe('tag.')
   })
 })
 
