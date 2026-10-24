@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SpeechOptions } from 'expo-speech'
 
-const speech = vi.hoisted(() => ({
-  calls: [] as { text: string; options: SpeechOptions }[],
-  stops: 0
-}))
+const speech = vi.hoisted(() => {
+  const calls: { text: string; options: SpeechOptions }[] = []
+  return { calls, stops: 0 }
+})
 
 vi.mock('expo-speech', () => ({
   speak: (text: string, options: SpeechOptions) => {
