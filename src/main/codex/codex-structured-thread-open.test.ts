@@ -1,10 +1,9 @@
+import { providerStartupFailureFact } from '../native-chat/agent-session-wire/structured-agent-session-failure-text'
 import { describe, expect, it, vi } from 'vitest'
-import {
-  CodexAppServerFrameSizeError,
-  CodexAppServerRequestError,
-  openCodexAppServerConnection,
-  type CodexAppServerConnection
-} from './codex-app-server-connection'
+import { CodexAppServerFrameSizeError } from './app-server/codex-app-server-frame-size-error'
+import { CodexAppServerRequestError } from './app-server/codex-app-server-request-error'
+import { openCodexAppServerConnection } from './codex-app-server-connection'
+import type { CodexAppServerConnection } from './app-server/codex-app-server-connection-types'
 import { codexStructuredPermissionPolicy } from './codex-structured-permission-policy'
 import { openCodexThread } from './codex-structured-thread-open'
 
@@ -317,4 +316,44 @@ describe('openCodexThread', () => {
       }
     })
   })
+})
+
+it('keeps an exact active-writer refusal typed through cleanup wrapping', async () => {
+  const error = new CodexAppServerRequestError(
+    'thread/resume',
+    -32600,
+    'thread C already has an active writer'
+  )
+  const request = vi.fn().mockRejectedValue(error)
+  let refused: unknown
+  try {
+    await openCodexThread(connectionFor(request), { cwd: '/workspace', resumeThreadId: 'C' }, 2_000)
+  } catch (caught) {
+    refused = caught
+  }
+  expect(refused).toMatchObject({ reason: 'conversationOpenElsewhere' })
+  expect(providerStartupFailureFact(new AggregateError([refused], 'cleanup failed'))).toMatchObject(
+    {
+      kind: 'conversationOpenElsewhere',
+      detail: { text: error.message, audience: 'log' }
+    }
+  )
+  expect(request).toHaveBeenCalledOnce()
+})
+
+it.each([
+  ['thread/resume', -32600, 'thread D already has an active writer'],
+  ['thread/start', -32600, 'thread C already has an active writer'],
+  ['thread/resume', -32600, 'thread C is archived'],
+  ['thread/resume', -32600, 'unrelated invalid request'],
+  ['thread/resume', -1, 'thread C already has an active writer']
+] as const)('does not broaden writer refusal for %s/%s/%s', async (method, code, message) => {
+  const error = new CodexAppServerRequestError(method, code, message)
+  await expect(
+    openCodexThread(
+      connectionFor(vi.fn().mockRejectedValue(error)),
+      { cwd: '/workspace', resumeThreadId: 'C' },
+      2_000
+    )
+  ).rejects.toBe(error)
 })

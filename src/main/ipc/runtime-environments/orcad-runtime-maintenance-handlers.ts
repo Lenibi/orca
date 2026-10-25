@@ -10,12 +10,30 @@ import { requiredString } from './orcad-runtime-lifecycle-handlers'
 
 export function registerOrcadRuntimeMaintenanceHandlers(options: ManagedOrcadActionOptions): void {
   const actions = createManagedOrcadActions(options)
-  // Why: the CLI reaches these same actions over runtime RPC (managedServer.*).
+  // CLI runtime RPC uses these same managedServer actions.
   registerManagedServerActions(actions)
   ipcMain.handle(
     'runtimeEnvironments:updateOrcad',
-    async (_event, args: { selector: string; force?: boolean }) =>
-      actions.update(requiredString(args?.selector, 'Server'), args?.force === true)
+    async (
+      _event,
+      args: {
+        selector: string
+        force?: boolean
+        pastLiveTerminals?: { incumbentVersion?: unknown }
+      }
+    ) => {
+      const incumbentVersion = args?.pastLiveTerminals?.incumbentVersion
+      const pastLiveTerminals =
+        args?.pastLiveTerminals &&
+        (typeof incumbentVersion === 'string' || incumbentVersion === null)
+          ? { incumbentVersion }
+          : undefined
+      return actions.update(
+        requiredString(args?.selector, 'Server'),
+        args?.force === true,
+        pastLiveTerminals
+      )
+    }
   )
   ipcMain.handle('runtimeEnvironments:rollbackOrcad', async (_event, args: { selector: string }) =>
     actions.rollback(requiredString(args?.selector, 'Server'))
