@@ -203,11 +203,10 @@ export function MobileNativeChatView({
   const readAloud = useMobileNativeChatReadAloud(sendSurfaceId)
   const latestReplySpeech = useMemo(() => latestReplySpeechText(messages), [messages])
   const { toggle: toggleReadAloud } = readAloud
-  const handleReadAloudPress = useCallback(() => {
-    if (latestReplySpeech) {
-      toggleReadAloud('latest-reply', latestReplySpeech)
-    }
-  }, [latestReplySpeech, toggleReadAloud])
+  const handleReadAloudPress = useCallback(
+    () => toggleReadAloud('latest-reply', latestReplySpeech),
+    [latestReplySpeech, toggleReadAloud]
+  )
 
   // Memoize list derivation to keep downstream autoscroll/renderItem dependencies stable.
   const { data } = useMemo(

@@ -266,10 +266,7 @@ export function MobileNativeChatComposer({
                 accessibilityLabel={
                   readAloudActive ? 'Stop reading aloud' : 'Read latest reply aloud'
                 }
-                style={({ pressed }) => [
-                  styles.ghostButton,
-                  pressed && !readAloudDisabled && styles.pressed
-                ]}
+                style={({ pressed }) => [styles.ghostButton, pressed && styles.pressed]}
                 onPress={onReadAloudPress}
                 disabled={readAloudDisabled && !readAloudActive}
               >

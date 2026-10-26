@@ -13,9 +13,13 @@ export function useMobileNativeChatReadAloud(scopeKey: string) {
   }, [speech])
 
   const toggle = useCallback(
-    (key: string, text: string) => {
+    // Stop needs no text: the reply being read can be gone while it is still playing.
+    (key: string, text: string | null) => {
       if (speakingKey === key) {
         stop()
+        return
+      }
+      if (!text) {
         return
       }
       runRef.current += 1

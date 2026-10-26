@@ -57,6 +57,26 @@ describe('useMobileNativeChatReadAloud', () => {
     expect(readAloud?.speakingKey).toBeNull()
   })
 
+  it('stops when pressed after the reply it was reading is gone', () => {
+    const stopsWhileReading = startReadingInTab('tab-a')
+
+    act(() => readAloud?.toggle('latest-reply', null))
+
+    expect(speech.stops).toBe(stopsWhileReading + 1)
+    expect(readAloud?.speakingKey).toBeNull()
+  })
+
+  it('does nothing when pressed with no reply to read', () => {
+    act(() => {
+      renderer = create(createElement(Harness, { scopeKey: 'tab-a' }))
+    })
+
+    act(() => readAloud?.toggle('latest-reply', null))
+
+    expect(speech.spoken).toEqual([])
+    expect(readAloud?.speakingKey).toBeNull()
+  })
+
   it('keeps reading when the same tab re-renders', () => {
     const stopsWhileReading = startReadingInTab('tab-a')
 
