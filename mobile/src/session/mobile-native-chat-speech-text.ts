@@ -5,6 +5,8 @@ const PATH =
   /(?:file:\/\/\/)?(?:[A-Za-z]:[\\/]|\.{0,2}[\\/]|~[\\/])?(?:[\w.!~-]+[\\/])+([\w.!~-]+\.\w{1,5})/g
 const URL_PATTERN = /https?:\/\/\S+/g
 const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]\u{FE0F}?/gu
+// A private-use character no reply contains holds an escaped table pipe while its row splits.
+const ESCAPED_PIPE = String.fromCharCode(0xe000)
 // Only a lone pair is a range; a longer chain is a date or a phone number.
 const NUMBER_RANGE = /(^|[^\d–-])(\d+)\s*[–-]\s*(\d+)(?![\d–-])/g
 
@@ -44,9 +46,9 @@ function speakTable(lines: string[]): string[] {
         .trim()
         .replace(/^\||\|$/g, '')
         // A pipe escaped as \| is cell text, not a column break.
-        .replace(/\\\|/g, '')
+        .replace(/\\\|/g, ESCAPED_PIPE)
         .split('|')
-        .map((cell) => cell.replace(//g, '|').trim())
+        .map((cell) => cell.replaceAll(ESCAPED_PIPE, '|').trim())
     )
     .filter((cells) => !cells.every((cell) => /^:?-{2,}:?$/.test(cell || '-')))
     .map((cells) => cells.map((cell) => (cell === '#' ? '' : speakInline(cell))))
