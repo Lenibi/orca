@@ -5,6 +5,8 @@ const PATH =
   /(?:file:\/\/\/)?(?:[A-Za-z]:[\\/]|\.{0,2}[\\/]|~[\\/])?(?:[\w.!~-]+[\\/])+([\w.!~-]+\.\w{1,5})/g
 const URL_PATTERN = /https?:\/\/\S+/g
 const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]\u{FE0F}?/gu
+// Only a lone pair is a range; a longer chain is a date or a phone number.
+const NUMBER_RANGE = /(^|[^\d–-])(\d+)\s*[–-]\s*(\d+)(?![\d–-])/g
 
 function speakInline(text: string): string {
   return text
@@ -15,7 +17,7 @@ function speakInline(text: string): string {
     .replace(/\*\*(.+?)\*\*/g, '$1')
     .replace(/(^|\W)\*(\S(?:.*?\S)?)\*(?!\w)/g, '$1$2')
     .replace(/__(.+?)__/g, '$1')
-    .replace(/(\d)\s*[–-]\s*(\d)/g, '$1 to $2')
+    .replace(NUMBER_RANGE, '$1$2 to $3')
     .replace(/\s\+\s/g, ' plus ')
     .replace(/->|→/g, ' to ')
     .replace(EMOJI, '')

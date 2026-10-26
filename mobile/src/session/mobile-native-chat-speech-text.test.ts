@@ -51,6 +51,12 @@ describe('nativeChatSpeechText', () => {
     expect(nativeChatSpeechText('## Title ##')).toBe('Title.')
     expect(nativeChatSpeechText('#tag')).toBe('tag.')
   })
+
+  it('reads a number range as a range but leaves dates and phone numbers whole', () => {
+    expect(nativeChatSpeechText('Shipped 2026-10-25, call 613-555-0100, takes 2-3 days.')).toBe(
+      'Shipped 2026-10-25, call 613-555-0100, takes 2 to 3 days.'
+    )
+  })
 })
 
 describe('nativeChatSpeechChunks', () => {
