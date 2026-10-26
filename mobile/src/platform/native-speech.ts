@@ -25,17 +25,19 @@ export function speakOnDevice(text: string): Promise<boolean> {
       }
       resolve(finished)
     }
+    // A failed part must also end the parts queued after it, or they play on behind an idle button.
+    const fail = () => {
+      if (settleCurrent === settle) {
+        stopSpeakingOnDevice()
+      }
+    }
     settleCurrent = settle
     chunks.forEach((chunk, index) => {
       Speech.speak(
         chunk,
         index === chunks.length - 1
-          ? {
-              onDone: () => settle(true),
-              onStopped: () => settle(false),
-              onError: () => settle(false)
-            }
-          : { onError: () => settle(false) }
+          ? { onDone: () => settle(true), onStopped: () => settle(false), onError: fail }
+          : { onError: fail }
       )
     })
   })

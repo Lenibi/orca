@@ -38,6 +38,15 @@ describe('native.speech.speak on the device', () => {
     await expect(second).resolves.toBe(true)
   })
 
+  it('stops the rest of a long reply when one part fails', async () => {
+    const reading = speakOnDevice(`${'a'.repeat(3000)}. ${'b'.repeat(3000)}.`)
+    const stopsWhileReading = speech.stops
+    expect(speech.calls).toHaveLength(2)
+    speech.calls[0]?.options.onError?.(new Error('synthesis failed'))
+    await expect(reading).resolves.toBe(false)
+    expect(speech.stops).toBe(stopsWhileReading + 1)
+  })
+
   it('stops on empty text', async () => {
     const reading = speakOnDevice('A long reply.')
     await expect(serveNativeSpeechVerb({ text: '' })).resolves.toEqual({ finished: false })
