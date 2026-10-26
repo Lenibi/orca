@@ -84,7 +84,7 @@ vi.mock('../../components/ActionSheetModal', () => ({ ActionSheetModal: 'ActionS
 vi.mock('../../components/MobileMarkdown', () => ({ MobileMarkdown: 'Markdown' }))
 export const visible = { value: true }
 const session = { messages: [], folded: [], status: 'ready', transcriptLoading: false }
-const structured = {
+const structuredSession = {
   session,
   isWorking: false,
   turnId: null,
@@ -103,6 +103,7 @@ const structured = {
   setStructuredOption: vi.fn(),
   invokeStructuredOption: vi.fn()
 }
+const sessionCommands = { commands: undefined, refresh: vi.fn() }
 vi.mock('../use-mobile-session-view-mode', () => ({
   useMobileSessionViewMode: () => ({
     isTabChatView: () => visible.value,
@@ -112,7 +113,7 @@ vi.mock('../use-mobile-session-view-mode', () => ({
   })
 }))
 vi.mock('../use-mobile-native-chat-session-lane', () => ({
-  useMobileNativeChatSessionLane: () => ({ session, structuredSession: structured })
+  useMobileNativeChatSessionLane: () => ({ session, structuredSession, sessionCommands })
 }))
 vi.mock('../native-chat/composer/use-mobile-native-chat-drafts', () => ({
   useMobileNativeChatDrafts: () => ({

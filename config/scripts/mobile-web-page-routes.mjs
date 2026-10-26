@@ -32,12 +32,15 @@ export const MOBILE_WEB_PAGE_ROUTES = [
   // externalLink serves layout wall/in-document Markdown preview; clipboard.write serves preview Source Copy. Census checks relation.
   {
     pathname: '/h/[hostId]/files/[worktreeId]',
-    grants: ['navigate', 'storage', 'externalLink', 'haptics', 'native.clipboard.write']
+    grants: ['navigate', 'storage', 'externalLink', 'haptics', 'native.clipboard.write'],
+    // Older shells cannot open PDFs; the preview asks for an app update instead.
+    optionalGrants: ['native.pdf.view']
   },
   // Preview itself uses Markdown externalLink and Source Copy clipboard; explorer inherits same grants for in-document hop.
   {
     pathname: '/h/[hostId]/files/preview/[worktreeId]',
-    grants: ['navigate', 'storage', 'externalLink', 'haptics', 'native.clipboard.write']
+    grants: ['navigate', 'storage', 'externalLink', 'haptics', 'native.clipboard.write'],
+    optionalGrants: ['native.pdf.view']
   },
   // Hub grants cover Back/review navigation, shared storage, PR link openers and conflict-command Copy.
   // Keep pr/history Redirects native: listing them would leave page session bound to pathname redirect already left; native replaces into hub once.
@@ -74,6 +77,11 @@ export const MOBILE_WEB_PAGE_ROUTES = [
     ],
     // Optional media.name preserves attachment on older shells by falling back to filename derived from type.
     // Optional speech.speak is the composer's read-aloud button, which an older shell simply does not show.
-    optionalGrants: ['externalNavigation', 'native.media.name', 'native.speech.speak']
+    optionalGrants: [
+      'externalNavigation',
+      'native.media.name',
+      'native.pdf.view',
+      'native.speech.speak'
+    ]
   }
 ]

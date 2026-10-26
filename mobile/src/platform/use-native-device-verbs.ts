@@ -8,7 +8,7 @@ import { createNativeMediaVerbServer } from './native-media'
 import { discardStagedMedia, nativeMediaDeviceDeps } from './native-media-device'
 import { serveNativeSpeechVerb, stopSpeakingOnDevice } from './native-speech'
 
-export type NativeDeviceVerb = Exclude<BridgeNativeVerb, 'native.storage.read'>
+export type NativeDeviceVerb = Exclude<BridgeNativeVerb, 'native.storage.read' | 'native.pdf.view'>
 
 // Tie stateful audio/media handlers to the page session so replacement documents cannot inherit abandoned microphones or staged handles.
 export function useNativeDeviceVerbs(
