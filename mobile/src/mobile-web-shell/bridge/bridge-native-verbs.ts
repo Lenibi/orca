@@ -66,7 +66,7 @@ export const storageReadParamsSchema = z.strictObject({
 })
 export const storageReadResultSchema = z.strictObject({ value: z.string().nullable() })
 
-// One verb rather than a speak/stop pair: the session route is one grant short of the ceiling.
+// One verb rather than a speak/stop pair: a second grant would push the session route past the ceiling.
 // An empty text stops; a new text replaces what is speaking. The reply waits for the speech to end
 // so the page can reset its button, and `finished` is false when it was stopped or replaced.
 export const speechSpeakParamsSchema = z.strictObject({ text: z.string() })
