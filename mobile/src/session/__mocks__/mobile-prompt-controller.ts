@@ -60,6 +60,7 @@ vi.mock('lucide-react-native', () =>
       'Plus',
       'Mic',
       'Square',
+      'Volume2',
       'X',
       'Check',
       'CircleHelp'
