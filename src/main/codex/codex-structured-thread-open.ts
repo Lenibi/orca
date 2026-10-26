@@ -8,11 +8,12 @@ import { readCodexThreadId } from './codex-structured-thread-facts'
 
 export type CodexOpenedThread = {
   threadId: string
+  reportedPermissionMode?: string | null
   supersededThreadId?: string
   thread?: Record<string, unknown>
   historyMode?: 'legacy' | 'paginated'
   model?: string
-  effort?: string
+  effort?: string | null
   /** Present, including null, only when this app-server reports the effective tier. */
   serviceTier?: string | null
 }
@@ -130,13 +131,39 @@ export async function openCodexThread(
   const serviceTier = nonEmptyString(result.serviceTier)
   return {
     threadId,
+    reportedPermissionMode: reportedCodexPermissionMode(result),
     ...(supersededThreadId === undefined ? {} : { supersededThreadId }),
     thread,
     ...(thread.historyMode === 'legacy' || thread.historyMode === 'paginated'
       ? { historyMode: thread.historyMode }
       : {}),
     ...(model ? { model } : {}),
-    ...(effort ? { effort } : {}),
+    ...(effort || result.reasoningEffort === null ? { effort } : {}),
     ...(serviceTierKnown ? { serviceTier } : {})
   }
+}
+
+/** Unrecognized policies remain the agent's settings rather than a guessed Orca mode. */
+function reportedCodexPermissionMode(reply: Record<string, unknown>): string | null {
+  const approval = reply.approvalPolicy ?? reply.approval_policy
+  const reviewer = reply.approvalsReviewer ?? reply.approvals_reviewer
+  const sandbox = reply.sandbox
+  const sandboxType =
+    typeof sandbox === 'object' && sandbox !== null && 'type' in sandbox ? sandbox.type : sandbox
+  if (sandboxType === 'readOnly' || sandboxType === 'read-only') {
+    return 'read-only'
+  }
+  if (
+    (sandboxType === 'dangerFullAccess' || sandboxType === 'danger-full-access') &&
+    approval === 'never'
+  ) {
+    return 'full-access'
+  }
+  if (
+    (sandboxType === 'workspaceWrite' || sandboxType === 'workspace-write') &&
+    approval === 'on-request'
+  ) {
+    return reviewer === 'auto_review' ? 'auto' : reviewer === 'user' ? 'ask' : null
+  }
+  return null
 }

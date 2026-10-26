@@ -145,6 +145,16 @@ export const PR_E2E_SOURCE_ROUTES = [
         ))
   },
   {
+    id: 'ssh.orcad-ssh-failure-reason',
+    specs: ['tests/e2e/ssh-orcad-ssh-failure-reason.spec.ts'],
+    matches: (file) =>
+      MANAGED_SSH_HARNESS.test(file) ||
+      (isProductSource(file) &&
+        /^src\/(?:main\/(?:ipc\/ssh\/(?:ssh-connect-flow|ssh-host-server-)|ssh\/(?:ssh-session-start-failure|ssh-host-server-|connection\/ssh-connection-manager))|renderer\/src\/ssh\/(?:ssh-host-server-status-copy|ssh-connect-failure-toast))/.test(
+          file
+        ))
+  },
+  {
     id: 'ssh.orcad-update-anyway',
     specs: ['tests/e2e/ssh-orcad-update-anyway.spec.ts'],
     matches: (file) =>
@@ -283,6 +293,18 @@ export const PR_E2E_SOURCE_ROUTES = [
       ) ||
       (isProductSource(file) &&
         /^src\/(?:main\/(?:ssh|managed-server\/[a-z-]+)\/orcad-managed-|main\/ipc\/(?:ssh\/)?ssh-port-forward|main\/(?:ipc\/(?:(?:ssh\/)?ssh-(?:connect-flow|connection-handlers|host-user-disconnect|session-teardown)|(?:runtime-environments\/)?runtime-environment-(?:connectivity-handlers|manual-disconnect))|ssh\/(?:connection\/ssh-connection-manager|ssh-user-disconnect))\.ts$|renderer\/src\/startup\/(?:ssh-startup-reconnect|startup-ssh-connection-restore)\.ts$|renderer\/src\/runtime\/(?:web-runtime-session|web-session-close-|runtime-terminal-artifact-read\.ts$)|renderer\/src\/components\/terminal-pane\/(?:remote-runtime-|terminal-host-(?:workspace-file|file-link-existence)\.ts$))/.test(
+          file
+        ))
+  },
+  {
+    // A Claude chat a managed host's CLI refuses to start names why (#33768).
+    id: 'ssh.orcad-claude-chat-start-failure',
+    specs: ['tests/e2e/ssh-orcad-claude-chat-start-failure.spec.ts'],
+    matches: (file) =>
+      MANAGED_SSH_HARNESS.test(file) ||
+      file === 'tests/e2e/fixtures/structured-claude-stub.cjs' ||
+      (isProductSource(file) &&
+        /^src\/(?:main\/(?:claude\/claude-(?:stream-json-connection|stream-json-exit-error|structured-session-exit-lifecycle)|native-chat\/agent-session-wire\/structured-agent-session-failure-text)|renderer\/src\/components\/native-chat\/structured-agent-session-delivery-notices)\.ts$/.test(
           file
         ))
   },
@@ -495,6 +517,17 @@ export const PR_E2E_SOURCE_ROUTES = [
       isProductSource(file) &&
       (file === 'src/main/runtime/browser/browser-commands.ts' ||
         /^src\/.*(?:[Cc]lient-?[Hh]osted|browser-host-(?:lease|page|client-page)|browser-client-(?:host|page)|runtime-browser-(?:client-)?page|session-tabs-sync|host-session-snapshot-authority|orca-runtime\.ts|\/runtime-(?:status|types)\.ts)/.test(
+          file
+        ))
+  },
+  {
+    // Connector code only: the shared launcher, writer and hook store it reuses already have their own routes.
+    id: 'connectors.headless-serve-conversation',
+    specs: ['tests/e2e/connector-headless-serve.spec.ts'],
+    matches: (file) =>
+      file === 'tests/e2e/helpers/connector-fake-claude.ts' ||
+      (isProductSource(file) &&
+        /^src\/(?:main\/external-conversations\/|main\/runtime\/rpc\/methods\/connector\.ts$|cli\/(?:handlers|specs)\/connector\.ts$|shared\/rpc-contract\/connector-params\.ts$)/.test(
           file
         ))
   }
