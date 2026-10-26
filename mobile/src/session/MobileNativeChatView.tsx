@@ -200,7 +200,7 @@ export function MobileNativeChatView({
   const insets = useSafeAreaInsets()
   const bottomPad = keyboardInset > 0 ? keyboardInset + insets.bottom : insets.bottom
   const { fontScale, pinchGesture } = useMobileNativeChatPinchGesture()
-  const readAloud = useMobileNativeChatReadAloud()
+  const readAloud = useMobileNativeChatReadAloud(sendSurfaceId)
   const latestReplySpeech = useMemo(() => latestReplySpeechText(messages), [messages])
   const { toggle: toggleReadAloud } = readAloud
   const handleReadAloudPress = useCallback(() => {

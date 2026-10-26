@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSpeechOutput } from '../platform/speech-output'
 
-export function useMobileNativeChatReadAloud() {
+export function useMobileNativeChatReadAloud(scopeKey: string) {
   const speech = useSpeechOutput()
   const [speakingKey, setSpeakingKey] = useState<string | null>(null)
   const runRef = useRef(0)
@@ -34,7 +34,8 @@ export function useMobileNativeChatReadAloud() {
     [speakingKey, speech, stop]
   )
 
-  useEffect(() => () => speech.stop(), [speech])
+  // Switching chat tabs keeps this view mounted, so a new scope must end the old tab's reading.
+  useEffect(() => () => stop(), [scopeKey, stop])
 
   return { canSpeak: speech.canSpeak, speakingKey, toggle, stop }
 }
